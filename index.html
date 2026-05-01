@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-950 text-white">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InstaSave • Instagram Downloader</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        .gradient-text { background: linear-gradient(90deg, #f97316, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); }
+    </style>
+</head>
+<body class="h-full">
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="bg-black border-b border-gray-800">
+            <div class="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <i class="fa-brands fa-instagram text-4xl text-pink-500"></i>
+                    <div>
+                        <h1 class="text-3xl font-bold gradient-text">InstaSave</h1>
+                        <p class="text-xs text-gray-500 -mt-1">Video & Image Downloader</p>
+                    </div>
+                </div>
+                <div class="text-sm text-gray-400 flex items-center gap-6">
+                    <a href="#" class="hover:text-white transition">How it works</a>
+                    <a href="#" class="hover:text-white transition">Privacy</a>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 max-w-5xl mx-auto w-full px-6 py-12">
+            <div class="text-center mb-12">
+                <h2 class="text-5xl font-bold mb-4">Download Instagram Posts</h2>
+                <p class="text-xl text-gray-400 max-w-md mx-auto">Paste any public Instagram post, reel, or story link and download in HD</p>
+            </div>
+
+            <!-- Input -->
+            <div class="max-w-2xl mx-auto mb-12">
+                <div class="flex gap-3">
+                    <input 
+                        id="urlInput"
+                        type="text" 
+                        placeholder="https://www.instagram.com/reel/..." 
+                        class="flex-1 bg-gray-900 border border-gray-700 rounded-2xl px-6 py-5 text-lg focus:outline-none focus:border-orange-500 transition"
+                    >
+                    <button 
+                        onclick="fetchMedia()"
+                        id="downloadBtn"
+                        class="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 px-10 rounded-2xl font-semibold text-lg transition flex items-center gap-3"
+                    >
+                        <i class="fas fa-download"></i>
+                        <span>Download</span>
+                    </button>
+                </div>
+                <p class="text-xs text-gray-500 mt-3 text-center">Supports Posts • Reels • Carousel • Images</p>
+            </div>
+
+            <!-- Result Area -->
+            <div id="result" class="hidden max-w-2xl mx-auto">
+                <div class="bg-gray-900 rounded-3xl overflow-hidden border border-gray-700 card">
+                    <!-- Preview -->
+                    <div id="preview" class="p-8 flex justify-center bg-black min-h-[400px] items-center"></div>
+                    
+                    <div class="p-6 border-t border-gray-700">
+                        <div class="flex flex-wrap gap-3" id="downloadLinks">
+                            <!-- Buttons added by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <div onclick="resetApp()" class="text-center mt-8 text-gray-400 hover:text-white cursor-pointer flex items-center justify-center gap-2">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Try another link</span>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div id="loading" class="hidden max-w-2xl mx-auto text-center py-20">
+                <div class="inline-flex flex-col items-center">
+                    <div class="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                    <p class="mt-6 text-gray-400">Fetching from Instagram...</p>
+                    <p class="text-xs text-gray-500 mt-1">This may take a few seconds</p>
+                </div>
+            </div>
+        </main>
+
+        <footer class="py-8 text-center text-xs text-gray-500 border-t border-gray-800">
+            <p>For educational purposes only • Respect Instagram's terms of service</p>
+            <p class="mt-1">This is a demo webapp. Works best with public posts.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Tailwind script already included
+
+        async function fetchMedia() {
+            const urlInput = document.getElementById('urlInput');
+            const url = urlInput.value.trim();
+            
+            if (!url.includes('instagram.com')) {
+                alert("Please enter a valid Instagram URL");
+                return;
+            }
+
+            // Show loading
+            document.getElementById('result').classList.add('hidden');
+            document.getElementById('loading').classList.remove('hidden');
+
+            try {
+                // In a real backend-powered app, you would call your server here
+                // For demo: we'll simulate and show example UI
+                
+                // Simulate API call delay
+                await new Promise(resolve => setTimeout(resolve, 1800));
+
+                // Mock data - in real app this comes from backend
+                showMockResult(url);
+                
+            } catch (error) {
+                alert("Failed to fetch. Make sure the post is public.");
+                console.error(error);
+            } finally {
+                document.getElementById('loading').classList.add('hidden');
+            }
+        }
+
+        function showMockResult(url) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.classList.remove('hidden');
+            
+            const preview = document.getElementById('preview');
+            const linksContainer = document.getElementById('downloadLinks');
+            
+            linksContainer.innerHTML = '';
+            
+            // Detect type from URL
+            let isVideo = url.includes('reel') || url.includes('/tv/') || url.includes('video');
+            
+            if (isVideo) {
+                preview.innerHTML = `
+                    <div class="relative w-full max-w-lg">
+                        <video controls class="w-full rounded-2xl shadow-2xl" poster="https://picsum.photos/id/1015/800/600">
+                            <source src="https://assets.mixkit.co/videos/preview/754/754-large.mp4" type="video/mp4">
+                        </video>
+                        <div class="absolute top-4 right-4 bg-black/70 text-xs px-3 py-1 rounded-full flex items-center gap-1">
+                            <i class="fas fa-video text-red-500"></i>
+                            REEL
+                        </div>
+                    </div>
+                `;
+                
+                linksContainer.innerHTML = `
+                    <a href="#" onclick="fakeDownload(this)" class="flex-1 bg-white text-black font-semibold py-4 rounded-2xl flex items-center justify-center gap-3 hover:bg-gray-100 transition">
+                        <i class="fas fa-download"></i>
+                        Download Video (HD)
+                    </a>
+                    <a href="#" onclick="fakeDownload(this)" class="flex-1 bg-gray-800 hover:bg-gray-700 font-semibold py-4 rounded-2xl flex items-center justify-center gap-3 transition">
+                        <i class="fas fa-image"></i>
+                        Download Thumbnail
+                    </a>
+                `;
+            } else {
+                preview.innerHTML = `
+                    <img src="https://picsum.photos/id/1015/800/800" class="max-h-[420px] rounded-3xl shadow-2xl object-contain" alt="Instagram Post">
+                `;
+                
+                linksContainer.innerHTML = `
+                    <a href="#" onclick="fakeDownload(this)" class="flex-1 bg-white text-black font-semibold py-4 rounded-2xl flex items-center justify-center gap-3 hover:bg-gray-100 transition">
+                        <i class="fas fa-download"></i>
+                        Download Image (Full HD)
+                    </a>
+                `;
+            }
+        }
+
+        function fakeDownload(el) {
+            el.innerHTML = `<i class="fas fa-spinner animate-spin"></i> Preparing...`;
+            setTimeout(() => {
+                alert("In a real webapp, this would trigger the actual file download.\n\nBackend needed for production use.");
+                el.innerHTML = `<i class="fas fa-check"></i> Done!`;
+            }, 800);
+        }
+
+        function resetApp() {
+            document.getElementById('result').classList.add('hidden');
+            document.getElementById('urlInput').value = '';
+        }
+
+        // Allow Enter key
+        document.getElementById('urlInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') fetchMedia();
+        });
+
+        // Demo: auto-fill a sample URL
+        setTimeout(() => {
+            // document.getElementById('urlInput').value = "https://www.instagram.com/reel/C123abc/";
+        }, 1200);
+    </script>
+</body>
+</html>
